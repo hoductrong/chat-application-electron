@@ -13,8 +13,6 @@ import type { AuthenticationViewModel } from './AuthenticationViewModel';
 export const mId = new ModuleIdentifier('chat');
 const authHandler = getViewModel<AuthenticationViewModel>(authMId);
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 const defaultCId = '1';
 
 @viewModel(mId)
@@ -29,7 +27,6 @@ export class ChatViewModel extends ViewModelClass {
     super();
     this.chatModel = new ChatModel();
     this.authViewModel = authHandler;
-    this.joinDefaultConversation();
   }
 
   async joinDefaultConversation() {
@@ -42,7 +39,6 @@ export class ChatViewModel extends ViewModelClass {
 
   setupReceivingMessage(conversationId: string) {
     this.chatModel.onMessage(async (data) => {
-      await sleep(1000);
       if (data.conversationId !== conversationId) return;
 
       if (this.isMessageExisted(data)) return;

@@ -22,15 +22,34 @@ export default function ChatWindow() {
   useAuthHandler();
 
   useEffect(() => {
-    if (!messageHandler.currentConversation) return;
-    messageHandler.setupReceivingMessage(messageHandler.currentConversation.id);
+    const startup = async () => {
+      if (authHandler.isAuthenticated) {
+        await messageHandler.joinDefaultConversation();
+        if (!messageHandler.currentConversation) return;
+        messageHandler.setupReceivingMessage(
+          messageHandler.currentConversation.id,
+        );
+      }
+    };
+
+    startup();
   }, []);
 
   const onInputChange = (value: string) => {
     setMessage(value);
   };
 
-  const renderAuthenticating = () => <AuthenticateWindow />;
+  const onClickSubmit = async (username: string) => {
+    await authHandler.startAuthenticate(username);
+    await messageHandler.joinDefaultConversation();
+
+    if (!messageHandler.currentConversation) return;
+    messageHandler.setupReceivingMessage(messageHandler.currentConversation.id);
+  };
+
+  const renderAuthenticating = () => (
+    <AuthenticateWindow onClickSubmit={onClickSubmit} />
+  );
 
   return authHandler.currentUser !== null ? (
     <div className={styles.container}>

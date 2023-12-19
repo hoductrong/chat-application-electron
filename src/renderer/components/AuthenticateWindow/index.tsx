@@ -1,15 +1,15 @@
-import { getViewModel } from 'src/reactive';
-import type { AuthenticationViewModel } from 'src/handlers/AuthenticationViewModel';
-import { mId } from 'src/handlers/AuthenticationViewModel';
+import type { FC } from 'react';
 import { useState } from 'react';
 import Button from '../Button';
 import styles from './styles.module.scss';
 import Input from '../Input';
 import useAuthHandler from 'src/renderer/hooks/useAuthHandler';
 
-const authHandler = getViewModel<AuthenticationViewModel>(mId);
+type AuthenticateWindowProps = {
+  onClickSubmit(username: string): void;
+};
 
-export default function AuthenticateWindow() {
+const AuthenticateWindow: FC<AuthenticateWindowProps> = ({ onClickSubmit }) => {
   const [username, setUsername] = useState<string>('');
   useAuthHandler();
 
@@ -29,13 +29,13 @@ export default function AuthenticateWindow() {
         <Button
           type="submit"
           className={styles.button}
-          onClick={async () => {
-            await authHandler.startAuthenticate(username);
-          }}
+          onClick={() => onClickSubmit(username)}
         >
           Submit
         </Button>
       </form>
     </div>
   );
-}
+};
+
+export default AuthenticateWindow;

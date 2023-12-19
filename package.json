@@ -1,8 +1,8 @@
 {
-  "name": "eforce-app",
-  "productName": "eforce-app",
+  "name": "chat-application",
+  "productName": "chat-application",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Simple chat application",
   "main": ".webpack/main",
   "scripts": {
     "start": "cross-env NODE_ENV=development electron-forge start",
@@ -10,7 +10,9 @@
     "make": "cross-env NODE_ENV=production electron-forge make",
     "publish": "cross-env NODE_ENV=production electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
-    "fix:lint": "prettier --write ."
+    "fix:lint": "prettier --write .",
+    "build": "yarn run package && yarn run make",
+    "build:web": "cross-env NODE_ENV=production webpack --config webpack.web.config.ts"
   },
   "keywords": [],
   "author": {
@@ -48,15 +50,19 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "fork-ts-checker-webpack-plugin": "^7.2.13",
+    "html-webpack-plugin": "^5.5.4",
     "node-loader": "^2.0.0",
     "prettier": "^3.1.0",
     "sass": "^1.69.5",
     "sass-loader": "^13.3.2",
     "style-loader": "^3.0.0",
+    "terser-webpack-plugin": "^5.3.9",
     "ts-essentials": "^9.4.1",
     "ts-loader": "^9.2.2",
     "ts-node": "^10.0.0",
-    "typescript": "^5.3.2"
+    "typescript": "^5.3.2",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.5",

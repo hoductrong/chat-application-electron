@@ -1,0 +1,13 @@
+.container {
+  padding: 12px 24px;
+  align-items: center;
+  box-sizing: border-box;
+  text-decoration-line: none;
+  border-radius: 16px;
+  border: 1px solid #d1d1d1;
+  width: 500px;
+
+  &:active, &:focus, &:focus-within, &:focus-visible {
+    border-color: black;
+  }
+}

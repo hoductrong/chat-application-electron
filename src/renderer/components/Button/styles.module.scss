@@ -1,0 +1,22 @@
+.container {
+  padding: 12px 12px;
+  align-items: center;
+  box-sizing: border-box;
+  display: inline-flex;
+  justify-content: center;
+  text-decoration-line: none;
+  color: white;
+  background-color: #1267b4;
+  border-radius: 16px;
+  border: 1px solid #d1d1d1;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #18599b;
+  }
+
+  &:active, &:focus, &:focus-within, &:focus-visible {
+    border-color: black;
+  }
+}

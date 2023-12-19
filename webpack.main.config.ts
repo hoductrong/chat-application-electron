@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import type { Configuration } from 'webpack';
+import path from 'path';
 import { EnvironmentPlugin } from 'webpack';
 
 import { rules } from './webpack.rules';
@@ -24,6 +25,10 @@ export const mainConfig: Configuration = {
     }),
   ],
   resolve: {
+    alias: {
+      src: path.resolve(__dirname, './src'),
+    },
+    modules: ['node_modules'],
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
   },
 };

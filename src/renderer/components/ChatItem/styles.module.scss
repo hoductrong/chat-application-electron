@@ -1,0 +1,46 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 10px;
+
+  &.justifyEnd {
+    justify-content: flex-end;
+  }
+
+  .contentWrapper {
+    display: flex;
+    flex-direction: row;
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-color: white;
+      border: 1px solid #d1d1d1;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: rgba(0, 0, 0, 0.12) 0px 0px 2px, rgba(0, 0, 0, 0.14) 0px 2px 4px;
+  
+      &.bgBlue {
+        background-color: #9299f7;
+      }
+
+      .name {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+  
+      .message {
+        word-wrap: break-word;
+        margin-bottom: 5px;
+        max-width: 500px;
+      }
+    }
+  
+    .dummy {
+      min-width: 100px;
+      margin-right: 10px;
+    }
+  }
+}

@@ -13,6 +13,7 @@
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "plugin:import/typescript",
+    "plugin:react/jsx-runtime",
     "prettier"
   ],
   "parser": "@typescript-eslint/parser",
@@ -20,10 +21,7 @@
   "rules": {
     // Eslint
     "no-undef": "error",
-    "max-depth": ["error", { "max": 3 }],
-    "max-statements": ["error", { "max": 20 }],
     "complexity": "error",
-    "max-params": ["error", { "max": 4 }],
     "max-nested-callbacks": ["error", { "max": 3 }],
     "func-names": ["error", "never"],
     "no-console": "error",
@@ -59,6 +57,7 @@
         "minimumDescriptionLength": 3
       }
     ],
+    "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
@@ -66,5 +65,10 @@
         "ignoreRestSiblings": true
       }
     ]
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
   }
 }

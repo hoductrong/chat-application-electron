@@ -1,21 +1,16 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+import { ReactReactive } from 'src/reactive';
 import './App.css';
-
-function Hello() {
-  return (
-    <div>
-      <h1>💖 Hello World!</h1>
-      <p>Welcome to your Electron application.</p>
-    </div>
-  );
-}
+import ChatWindow from './components/ChatWindow';
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Hello />} />
-      </Routes>
-    </Router>
+    <ReactReactive>
+      <Router>
+        <Routes>
+          <Route path="/" element={<ChatWindow />} />
+        </Routes>
+      </Router>
+    </ReactReactive>
   );
 }

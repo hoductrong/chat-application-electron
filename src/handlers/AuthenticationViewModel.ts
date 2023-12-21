@@ -1,4 +1,4 @@
-import { ModuleIdentifier, ViewModelClass, viewModel } from 'src/reactive';
+import { ModuleIdentifier, viewModel } from 'src/reactive';
 import type { AuthenticateInfo, User } from 'src/lib/types';
 import { AppError } from 'src/lib/types';
 import type { AuthenticateModel } from 'src/models/AuthenticateModel';
@@ -8,31 +8,35 @@ import { logger } from 'src/lib/logger';
 import { socketManager } from 'src/lib/socket/SocketManager';
 import { getSessionId } from 'src/lib/utils/session';
 import { getClientId, initNewClientId } from 'src/lib/utils/clientId';
+import { makeAutoObservable } from 'mobx';
 
 export const mId = new ModuleIdentifier('authentication');
 
 @viewModel(mId)
-export class AuthenticationViewModel extends ViewModelClass {
+export class AuthenticationViewModel {
   currentUser: User | null = null;
   authenticateModel: AuthenticateModel;
 
   constructor() {
-    super();
     this.authenticateModel = authenticateModel;
+    makeAutoObservable(this);
+  }
+
+  init = () => {
     this.getCurrentUser();
     this.autoAuthenticate();
     this.handleError();
-  }
+  };
 
-  createClientIdIfNotExist() {
+  createClientIdIfNotExist = () => {
     const clientId = getClientId();
     if (!clientId) {
       return initNewClientId();
     }
     return clientId;
-  }
+  };
 
-  getCurrentUser() {
+  getCurrentUser = () => {
     if (!this.isAuthenticated) {
       return null;
     }
@@ -40,27 +44,26 @@ export class AuthenticationViewModel extends ViewModelClass {
     this.currentUser = this.authenticateModel.fetchCurrentUser();
 
     return this.currentUser;
-  }
+  };
 
   get isAuthenticated() {
     const sessionId = getSessionId();
     return !!sessionId;
   }
 
-  handleError() {
+  handleError = () => {
     socketManager.onError((error: any) => {
       logger.error('Socket error', error);
       if (error?.data?.status === AppError.UNAUTHORIZED) {
         this.currentUser = null;
         this.authenticateModel.clearUserInfo();
         this.authenticateModel.clearSessionId();
-        this.triggerRender();
         socketManager.disconnect();
       }
     });
-  }
+  };
 
-  autoAuthenticate() {
+  autoAuthenticate = () => {
     const sessionId = this.authenticateModel.getSessionId();
 
     if (!sessionId) {
@@ -68,10 +71,9 @@ export class AuthenticationViewModel extends ViewModelClass {
     }
 
     this.authenticateModel.autoAuthenticate(sessionId);
-    this.triggerRender();
-  }
+  };
 
-  async startAuthenticate(username: string) {
+  startAuthenticate = async (username: string) => {
     const id = generateUid();
     try {
       const auth: AuthenticateInfo = {
@@ -85,9 +87,8 @@ export class AuthenticationViewModel extends ViewModelClass {
         name: username,
       });
       this.getCurrentUser();
-      this.triggerRender();
     } catch (error) {
       logger.error(error);
     }
-  }
+  };
 }

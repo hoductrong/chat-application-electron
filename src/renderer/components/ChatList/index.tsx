@@ -1,19 +1,21 @@
 import classNames from 'classnames';
 import styles from './styles.module.scss';
-import type { PropsWithChildren } from 'react';
-import type React from 'react';
+import { forwardRef, type PropsWithChildren } from 'react';
 
 type ChatListProps = {
   className?: string;
 };
 
-const ChatList: React.FC<PropsWithChildren<ChatListProps>> = ({
-  children,
-  className,
-}) => {
-  return (
-    <div className={classNames(styles.container, className)}>{children}</div>
-  );
-};
+const ChatList = forwardRef<HTMLDivElement, PropsWithChildren<ChatListProps>>(
+  ({ children, className }, ref) => {
+    return (
+      <div ref={ref} className={classNames(styles.container, className)}>
+        {children}
+      </div>
+    );
+  },
+);
+
+ChatList.displayName = 'ChatList';
 
 export default ChatList;

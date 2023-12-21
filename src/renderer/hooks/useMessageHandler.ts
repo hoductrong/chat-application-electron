@@ -1,7 +1,13 @@
+import { useState } from 'react';
+import type { ChatViewModel } from 'src/handlers/ChatViewModel';
 import { mId } from 'src/handlers/ChatViewModel';
-import type { ChatModel } from 'src/models/ChatModel';
-import { useDataViewModel } from 'src/reactive';
+import { getViewModel } from 'src/reactive';
 
-const useMessageHandler = () => useDataViewModel<ChatModel>(mId);
+const messageHandler = getViewModel<ChatViewModel>(mId);
+const useMessageHandler = () => {
+  const [store] = useState<ChatViewModel>(messageHandler);
+
+  return store;
+};
 
 export default useMessageHandler;

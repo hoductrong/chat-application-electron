@@ -1,9 +1,7 @@
 import { getViewModel } from 'src/reactive';
-import type { ChatViewModel } from 'src/handlers/ChatViewModel';
 import type { AuthenticationViewModel } from 'src/handlers/AuthenticationViewModel';
-import { mId as chatId } from 'src/handlers/ChatViewModel';
 import { mId as authId } from 'src/handlers/AuthenticationViewModel';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useMessageHandler from 'src/renderer/hooks/useMessageHandler';
 import Button from '../Button';
 import styles from './styles.module.scss';
@@ -12,28 +10,36 @@ import ChatList from '../ChatList';
 import ChatItem from '../ChatItem';
 import AuthenticateWindow from '../AuthenticateWindow';
 import useAuthHandler from 'src/renderer/hooks/useAuthHandler';
+import { observer } from 'mobx-react-lite';
 
-const messageHandler = getViewModel<ChatViewModel>(chatId);
 const authHandler = getViewModel<AuthenticationViewModel>(authId);
 
-export default function ChatWindow() {
+function ChatWindow() {
   const [message, setMessage] = useState<string>('');
-  useMessageHandler();
+  const {
+    listMessages,
+    sendMessage,
+    setupReceivingMessage,
+    currentConversation,
+    isDisconnect,
+    init,
+    joinDefaultConversation,
+  } = useMessageHandler();
+
+  const isDisabled = !message || !currentConversation?.id || isDisconnect;
+  const ref = useRef<HTMLDivElement>(null);
   useAuthHandler();
 
   useEffect(() => {
-    const startup = async () => {
-      if (authHandler.isAuthenticated) {
-        await messageHandler.joinDefaultConversation();
-        if (!messageHandler.currentConversation) return;
-        messageHandler.setupReceivingMessage(
-          messageHandler.currentConversation.id,
-        );
-      }
-    };
+    init();
+  }, [init]);
 
-    startup();
-  }, []);
+  useEffect(() => {
+    if (!ref.current) return;
+    ref.current.scrollTo({
+      top: ref.current.scrollHeight,
+    });
+  }, [listMessages]);
 
   const onInputChange = (value: string) => {
     setMessage(value);
@@ -41,10 +47,10 @@ export default function ChatWindow() {
 
   const onClickSubmit = async (username: string) => {
     await authHandler.startAuthenticate(username);
-    await messageHandler.joinDefaultConversation();
+    await joinDefaultConversation();
 
-    if (!messageHandler.currentConversation) return;
-    messageHandler.setupReceivingMessage(messageHandler.currentConversation.id);
+    if (!currentConversation) return;
+    setupReceivingMessage(currentConversation.id);
   };
 
   const renderAuthenticating = () => (
@@ -53,8 +59,11 @@ export default function ChatWindow() {
 
   return authHandler.currentUser !== null ? (
     <div className={styles.container}>
-      <ChatList className={styles.chatList}>
-        {messageHandler.listMessages.map((message) => (
+      {isDisconnect && (
+        <div className={styles.disconnected}>Disconnected. Reconnecting...</div>
+      )}
+      <ChatList ref={ref} className={styles.chatList}>
+        {listMessages.map((message) => (
           <ChatItem
             key={message.id}
             header={message.senderName}
@@ -62,6 +71,14 @@ export default function ChatWindow() {
             isRight={message.senderId === authHandler.currentUser?.id}
           />
         ))}
+        {/* {new Array(1000).fill(0).map((_, index) => (
+          <ChatItem
+            key={index}
+            header={`test${index}`}
+            message={`test${index}`}
+            isRight={index % 2 === 0}
+          />
+        ))} */}
       </ChatList>
       <form className={styles.chatInputContainer}>
         <Input
@@ -71,15 +88,19 @@ export default function ChatWindow() {
         />
         <Button
           type="submit"
+          isDisabled={isDisabled}
           className={styles.button}
           onClick={async () => {
-            if (!message || !messageHandler?.currentConversation?.id) return;
+            if (!message || !currentConversation?.id) return;
 
-            await messageHandler.sendMessage({
+            await sendMessage({
               message,
-              to: messageHandler.currentConversation.id,
+              to: currentConversation.id,
             });
             setMessage('');
+            ref.current?.scrollTo({
+              top: ref.current.scrollHeight,
+            });
           }}
         >
           Send
@@ -90,3 +111,5 @@ export default function ChatWindow() {
     renderAuthenticating()
   );
 }
+
+export default observer(ChatWindow);

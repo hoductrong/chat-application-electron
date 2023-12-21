@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '../Button';
 import styles from './styles.module.scss';
 import Input from '../Input';
@@ -11,7 +11,11 @@ type AuthenticateWindowProps = {
 
 const AuthenticateWindow: FC<AuthenticateWindowProps> = ({ onClickSubmit }) => {
   const [username, setUsername] = useState<string>('');
-  useAuthHandler();
+  const { init } = useAuthHandler();
+
+  useEffect(() => {
+    init();
+  }, [init]);
 
   const onInputChange = (value: string) => {
     setUsername(value);

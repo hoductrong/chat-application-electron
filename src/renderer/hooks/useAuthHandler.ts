@@ -1,7 +1,13 @@
+import { useState } from 'react';
+import type { AuthenticationViewModel } from 'src/handlers/AuthenticationViewModel';
 import { mId } from 'src/handlers/AuthenticationViewModel';
-import type { AuthenticateModel } from 'src/models/AuthenticateModel';
-import { useDataViewModel } from 'src/reactive';
+import { getViewModel } from 'src/reactive';
 
-const useAuthHandler = () => useDataViewModel<AuthenticateModel>(mId);
+const authHandler = getViewModel<AuthenticationViewModel>(mId);
+const useAuthHandler = () => {
+  const [store] = useState<AuthenticationViewModel>(authHandler);
+
+  return store;
+};
 
 export default useAuthHandler;

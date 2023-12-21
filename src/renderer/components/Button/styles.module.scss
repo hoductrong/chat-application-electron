@@ -12,11 +12,16 @@
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
 
-  &:hover {
+  &:not(:disabled):hover {
     background-color: #18599b;
   }
 
   &:active, &:focus, &:focus-within, &:focus-visible {
     border-color: black;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }

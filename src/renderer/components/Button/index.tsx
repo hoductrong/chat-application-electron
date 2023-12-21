@@ -6,6 +6,7 @@ import type React from 'react';
 type ButtonProps = {
   onClick?: () => void;
   className?: string;
+  isDisabled?: boolean;
   type: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
 };
 
@@ -14,9 +15,11 @@ const Button: React.FC<PropsWithChildren<ButtonProps>> = ({
   onClick,
   type,
   className,
+  isDisabled,
 }) => {
   return (
     <button
+      disabled={isDisabled}
       onClick={(e) => {
         e.preventDefault();
         onClick?.();

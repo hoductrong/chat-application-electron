@@ -1,3 +1,4 @@
+import type { Socket as SocketIO } from 'socket.io-client';
 import { io } from 'socket.io-client';
 import { SOCKET_SERVER_URL } from 'src/constants';
 import { logger } from '../logger';
@@ -61,12 +62,33 @@ export class SocketManager extends EventTarget {
 
         this.isConnecting = true;
         this.#socket.connect();
+        this.retryWhenError();
         this.isConnecting = false;
         this.isConnected = true;
       } catch (error) {
         reject(error);
       }
     });
+  }
+
+  retryWhenError() {
+    this.onDisconnect(async (reason) => {
+      logger.info('Socket is disconnected');
+      if (reason === 'io server disconnect') {
+        // the disconnection was initiated by the server, you need to reconnect manually
+        logger.info('Reconnecting...');
+        this.isConnected = false;
+        await this.connect();
+      }
+    });
+  }
+
+  onDisconnect(callback: (reason: SocketIO.DisconnectReason) => void) {
+    this.#socket.on('disconnect', callback);
+  }
+
+  onReconnect(callback: () => void) {
+    this.#socket.io.on('reconnect', callback);
   }
 
   disconnect() {

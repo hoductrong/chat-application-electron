@@ -25,7 +25,7 @@ const config: ForgeConfig = {
     new WebpackPlugin({
       mainConfig,
       devContentSecurityPolicy:
-        "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:;  connect-src 'self' wss://golden-candle-hovercraft.glitch.me ws://localhost:4040;",
+        "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:;  connect-src 'self' ws://138.2.58.168:4040 ws://localhost:4040;",
       renderer: {
         config: rendererConfig,
         entryPoints: [

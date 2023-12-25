@@ -16,7 +16,7 @@
     background-color: #18599b;
   }
 
-  &:active, &:focus, &:focus-within, &:focus-visible {
+  &:not(:disabled):active, &:focus, &:focus-within, &:focus-visible {
     border-color: black;
   }
 

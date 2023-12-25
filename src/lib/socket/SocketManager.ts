@@ -13,6 +13,7 @@ import { env } from 'src/main/utils';
 import { setSessionId } from '../utils/session';
 
 const TWENTY_SECONDS = 20000;
+const TIMEOUT = 5000;
 
 type SocketIncomingMessage = SocketResponse<Message>;
 
@@ -39,7 +40,6 @@ export class SocketManager extends EventTarget {
     });
 
     if (env !== 'production') {
-      this.listenAllMessage();
       this.logReconnect();
     }
   }
@@ -65,6 +65,10 @@ export class SocketManager extends EventTarget {
         this.retryWhenError();
         this.isConnecting = false;
         this.isConnected = true;
+
+        setTimeout(() => {
+          reject(AppError.CONNECT_TIMEOUT);
+        }, TIMEOUT);
       } catch (error) {
         reject(error);
       }
@@ -87,8 +91,24 @@ export class SocketManager extends EventTarget {
     this.#socket.on('disconnect', callback);
   }
 
+  offDisconnect(callback: (reason: SocketIO.DisconnectReason) => void) {
+    this.#socket.off('disconnect', callback);
+  }
+
   onReconnect(callback: () => void) {
     this.#socket.io.on('reconnect', callback);
+  }
+
+  offReconnect(callback: () => void) {
+    this.#socket.io.off('reconnect', callback);
+  }
+
+  onConnect(callback: () => void) {
+    this.#socket.on('connect', callback);
+  }
+
+  offConnect(callback: () => void) {
+    this.#socket.off('connect', callback);
   }
 
   disconnect() {
@@ -213,6 +233,10 @@ export class SocketManager extends EventTarget {
 
   onError(callback: (error: Error) => void) {
     this.#socket.on('connect_error', callback);
+  }
+
+  offError(callback: (error: Error) => void) {
+    this.#socket.off('connect_error', callback);
   }
 
   // registerRequestHandler(handler: MessageRequestHandler) {

@@ -59,6 +59,8 @@ export type AuthenticateInfo = {
 export type Socket = SocketIO;
 
 export enum AppError {
+  CONNECT_TIMEOUT = -3,
+  DISCONNECTED = -2,
   UNKNOWN = -1,
   NO_ERROR = 0,
   UNAUTHORIZED = 401,

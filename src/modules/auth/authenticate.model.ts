@@ -1,5 +1,6 @@
 import { socketManager } from 'src/lib/socket/SocketManager';
 import type { AuthenticateInfo, User } from 'src/lib/types';
+import { AppError } from 'src/lib/types';
 import {
   getItemLocalStorage,
   setItemLocalStorage,
@@ -28,7 +29,9 @@ export class AuthenticateModel {
     };
   }
 
-  async startAuthenticate(auth: AuthenticateInfo) {
+  async startAuthenticate(
+    auth: AuthenticateInfo,
+  ): Promise<{ error: AppError }> {
     socketManager.setAuthenticateInfo(auth);
 
     await socketManager.connect();
@@ -38,15 +41,23 @@ export class AuthenticateModel {
         id: auth.userId,
         name: auth.username,
       });
+    } else {
+      return {
+        error: AppError.DISCONNECTED,
+      };
     }
+
+    return {
+      error: AppError.NO_ERROR,
+    };
   }
 
-  autoAuthenticate(sessionId: string) {
+  async autoAuthenticate(sessionId: string) {
     socketManager.setAuthenticateInfo({
       sessionId,
     });
 
-    socketManager.connect();
+    await socketManager.connect();
   }
 
   getSessionId() {

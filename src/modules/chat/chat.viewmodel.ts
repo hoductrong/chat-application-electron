@@ -1,44 +1,26 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import { ModuleIdentifier, getViewModel, viewModel } from 'src/reactive';
-import { ChatModel } from 'src/models/ChatModel';
+import { chatModel, type ChatModel } from 'src/modules/chat/chat.model';
 import type { AppError, Message } from 'src/lib/types';
 import type { Conversation } from 'src/lib/conversation/types';
-import { mId as authMId } from './AuthenticationViewModel';
-import type { AuthenticationViewModel } from './AuthenticationViewModel';
-
-export const mId = new ModuleIdentifier('chat');
-const authHandler = getViewModel<AuthenticationViewModel>(authMId);
+import {
+  authHandler,
+  type AuthenticationViewModel,
+} from '../auth/authentication.viewmodel';
+import { useState } from 'react';
 
 const defaultCId = '1';
-
-@viewModel(mId)
 export class ChatViewModel {
   listMessages: Message[] = [];
   currentConversation: Conversation | undefined;
   chatModel: ChatModel;
-  isDisconnect = false;
   authViewModel: AuthenticationViewModel;
   error?: AppError;
 
   constructor() {
-    this.chatModel = new ChatModel();
+    this.chatModel = chatModel;
     this.authViewModel = authHandler;
     makeAutoObservable(this);
   }
-
-  init = async () => {
-    if (authHandler.isAuthenticated) {
-      await this.joinDefaultConversation();
-      if (!this.currentConversation) return;
-      this.setupReceivingMessage(this.currentConversation.id);
-    }
-    this.chatModel.onDisconnect(() => {
-      this.isDisconnect = true;
-    });
-    this.chatModel.onReconnect(() => {
-      this.isDisconnect = false;
-    });
-  };
 
   joinDefaultConversation = async () => {
     await this.joinConversation(defaultCId);
@@ -46,6 +28,8 @@ export class ChatViewModel {
       id: defaultCId,
       members: [],
     };
+
+    return this.currentConversation;
   };
 
   setupReceivingMessage = (conversationId: string) => {
@@ -80,7 +64,10 @@ export class ChatViewModel {
     }
 
     if (res.data) {
-      this.listMessages = [...this.listMessages, res.data];
+      const newListMessages = [...this.listMessages, res.data];
+      runInAction(() => {
+        this.listMessages = newListMessages;
+      });
     }
   };
 
@@ -98,3 +85,11 @@ export class ChatViewModel {
     this.error = res.error;
   };
 }
+
+export const chatHandler = new ChatViewModel();
+
+export const useChatHandler = () => {
+  const [store] = useState<ChatViewModel>(chatHandler);
+
+  return store;
+};

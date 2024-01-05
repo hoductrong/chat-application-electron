@@ -7,9 +7,15 @@ type InputProps = {
   className?: string;
   contentEditable?: boolean;
   value?: string;
+  placeholder?: string;
 };
 
-const Input: React.FC<InputProps> = ({ onChange, className, value }) => {
+const Input: React.FC<InputProps> = ({
+  onChange,
+  className,
+  value,
+  placeholder,
+}) => {
   return (
     <input
       role="textbox"
@@ -17,9 +23,9 @@ const Input: React.FC<InputProps> = ({ onChange, className, value }) => {
         onChange?.(e.target.value);
       }}
       value={value}
+      placeholder={placeholder}
       className={classNames(styles.container, className)}
-      contentEditable
-    ></input>
+    />
   );
 };
 

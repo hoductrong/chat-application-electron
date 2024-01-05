@@ -2,12 +2,23 @@ import { useEffect, useRef, useState } from 'react';
 import Button from '../../components/Button';
 import styles from './styles.module.scss';
 import Input from '../../components/Input';
+import type { ChatListForwardedRef } from '../../components/ChatList';
 import ChatList from '../../components/ChatList';
 import { observer } from 'mobx-react-lite';
 import { useConnectionStatus } from 'src/renderer/hooks/useConnectionStatus';
 import { useNavigate } from 'react-router-dom';
 import { useChatHandler } from 'src/modules/chat/chat.viewmodel';
 import { useAuthHandler } from 'src/modules/auth/authentication.viewmodel';
+import type { Message } from 'src/lib/types';
+
+// const listMessages: Message[] = new Array(500).fill(0).map((_, index) => ({
+//   id: index,
+//   senderId: index % 10 === 1 ? '7694cf23-b50b-4c2f-a038-1ce97f277a2c' : '1',
+//   senderName: 'John Doe',
+//   message: new Array(index % 10).fill('Hello world').join(''),
+//   conversationId: '1',
+//   createdAt: Date.now(),
+// }));
 
 function ChatWindow() {
   const [message, setMessage] = useState<string>('');
@@ -20,11 +31,11 @@ function ChatWindow() {
   } = useChatHandler();
   const authHandler = useAuthHandler();
   const isConnected = useConnectionStatus();
+  const ref = useRef<ChatListForwardedRef>(null);
 
   const navigate = useNavigate();
 
   const isDisabled = !message || !currentConversation?.id || !isConnected;
-  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!authHandler.sessionId) {
@@ -54,12 +65,14 @@ function ChatWindow() {
     setupReceivingMessage,
   ]);
 
-  useEffect(() => {
+  const scrollToLastMessage = () => {
     if (!ref.current) return;
-    ref.current.scrollTo({
-      top: ref.current.scrollHeight,
-    });
-  }, [listMessages]);
+    ref.current.scrollToLastMessage?.();
+  };
+
+  useEffect(() => {
+    scrollToLastMessage();
+  }, []);
 
   const onInputChange = (value: string) => {
     setMessage(value);
@@ -81,6 +94,7 @@ function ChatWindow() {
           value={message}
           className={styles.input}
           onChange={onInputChange}
+          placeholder="Type your message here..."
         />
         <Button
           type="submit"
@@ -94,9 +108,7 @@ function ChatWindow() {
               to: currentConversation.id,
             });
             setMessage('');
-            ref.current?.scrollTo({
-              top: ref.current.scrollHeight,
-            });
+            scrollToLastMessage();
           }}
         >
           Send

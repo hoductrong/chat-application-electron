@@ -4,6 +4,12 @@
   gap: 10px;
   margin-bottom: 10px;
 
+  .card {
+    object-fit: contain;
+    width: 200px;
+    height: 200px;
+  }
+
   &.justifyEnd {
     justify-content: flex-end;
   }

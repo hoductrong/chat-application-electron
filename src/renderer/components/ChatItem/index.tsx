@@ -1,17 +1,33 @@
 import classNames from 'classnames';
 import styles from './styles.module.scss';
-import { forwardRef } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
+import type { Message } from 'src/lib/types';
 
 type ChatItemProps = {
   className?: string;
   isRight?: boolean;
-  header: string;
-  message: string;
   dataIndex?: number;
+  item: Message;
 };
 
 const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>(
-  ({ className, isRight, header, message, dataIndex }, ref) => {
+  ({ className, isRight, dataIndex, item }, ref) => {
+    const { senderName: header, message } = item;
+    const [isHasQrCode, setIsHasQrCode] = useState<boolean>(false);
+    const cardRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+      const parseItem = async () => {
+        if (!item.bankQrCode) return;
+
+        if (cardRef.current) {
+          cardRef.current.appendChild(item.bankQrCode);
+          setIsHasQrCode(true);
+        }
+      };
+      parseItem();
+    }, [item]);
+
     return (
       <div
         data-index={dataIndex}
@@ -32,6 +48,7 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>(
           </div>
           {!isRight && <div className={styles.dummy} />}
         </div>
+        <div ref={cardRef} className={styles.card}></div>
       </div>
     );
   },

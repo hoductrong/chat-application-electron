@@ -50,6 +50,9 @@ export const rendererConfig: Configuration = {
     alias: {
       src: path.resolve(__dirname, './src'),
     },
+    fallback: {
+      path: require.resolve('path-browserify'),
+    },
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
   },
 };

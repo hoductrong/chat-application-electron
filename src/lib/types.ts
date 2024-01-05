@@ -35,6 +35,7 @@ export type Message = {
   conversationId: string;
   createdAt: number;
   senderId: string;
+  bankQrCode?: HTMLElement;
 };
 
 export type MessageWithoutId = Omit<Message, 'id'>;

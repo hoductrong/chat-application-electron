@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction, toJS } from 'mobx';
 import { chatModel, type ChatModel } from 'src/modules/chat/chat.model';
 import type { AppError, Message } from 'src/lib/types';
 import type { Conversation } from 'src/lib/conversation/types';
@@ -7,10 +7,13 @@ import {
   type AuthenticationViewModel,
 } from '../auth/authentication.viewmodel';
 import { useState } from 'react';
+import { makeBankQrParser } from 'src/lib/bankqr';
 
 const defaultCId = '1';
+const parseBankQr = makeBankQrParser('web-worker');
+
 export class ChatViewModel {
-  listMessages: Message[] = [];
+  listMessagesMap: Record<string, Message[]> = {};
   currentConversation: Conversation | undefined;
   chatModel: ChatModel;
   authViewModel: AuthenticationViewModel;
@@ -20,6 +23,10 @@ export class ChatViewModel {
     this.chatModel = chatModel;
     this.authViewModel = authHandler;
     makeAutoObservable(this);
+  }
+
+  get listMessages() {
+    return this.listMessagesMap[this.currentConversation?.id ?? ''] ?? [];
   }
 
   joinDefaultConversation = async () => {
@@ -38,8 +45,20 @@ export class ChatViewModel {
 
       if (this.isMessageExisted(data)) return;
 
+      const svgString = await parseBankQr(data.id, toJS(data));
+      if (svgString.data) {
+        performance.mark('start-parse-svg');
+        const svg = ChatViewModel.stringToHTMLElement(svgString.data);
+        data.bankQrCode = svg;
+        performance.mark('end-parse-svg');
+      }
+
       runInAction(() => {
-        this.listMessages = [...this.listMessages, data];
+        const messages = this.listMessagesMap[conversationId] ?? [];
+        this.listMessagesMap = {
+          ...this.listMessagesMap,
+          [conversationId]: [...messages, data],
+        };
       });
     });
   };
@@ -65,11 +84,29 @@ export class ChatViewModel {
 
     if (res.data) {
       const newListMessages = [...this.listMessages, res.data];
+      const data = toJS(res.data);
+
+      const svgString = await parseBankQr(res.data.id, data);
+
+      if (svgString.data) {
+        const svg = ChatViewModel.stringToHTMLElement(svgString.data);
+        res.data.bankQrCode = svg;
+      }
       runInAction(() => {
-        this.listMessages = newListMessages;
+        const currentConversationId = this.currentConversation?.id ?? '';
+        this.listMessagesMap = {
+          ...this.listMessagesMap,
+          [currentConversationId]: newListMessages,
+        };
       });
     }
   };
+
+  static stringToHTMLElement(html: string) {
+    const svg = new DOMParser().parseFromString(html, 'image/svg+xml');
+
+    return svg.documentElement;
+  }
 
   joinConversation = async (conversationId: string) => {
     const res = await this.chatModel.joinConversation({

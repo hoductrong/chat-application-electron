@@ -9,7 +9,7 @@ import { useConnectionStatus } from 'src/renderer/hooks/useConnectionStatus';
 import { useNavigate } from 'react-router-dom';
 import { useChatHandler } from 'src/modules/chat/chat.viewmodel';
 import { useAuthHandler } from 'src/modules/auth/authentication.viewmodel';
-import type { Message } from 'src/lib/types';
+import { perfBankQrParser } from 'src/perf/perfBankQrParser';
 
 // const listMessages: Message[] = new Array(500).fill(0).map((_, index) => ({
 //   id: index,
@@ -20,7 +20,7 @@ import type { Message } from 'src/lib/types';
 //   createdAt: Date.now(),
 // }));
 
-function ChatWindow() {
+const ChatWindow = observer(function () {
   const [message, setMessage] = useState<string>('');
   const {
     listMessages,
@@ -44,6 +44,10 @@ function ChatWindow() {
       authHandler.autoAuthenticate(authHandler.sessionId);
     }
   }, [navigate, authHandler.sessionId, authHandler]);
+
+  useEffect(() => {
+    perfBankQrParser();
+  }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -118,6 +122,6 @@ function ChatWindow() {
   ) : (
     <></>
   );
-}
+});
 
-export default observer(ChatWindow);
+export default ChatWindow;

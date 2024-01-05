@@ -14,6 +14,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
     "emitDecoratorMetadata": true,
     "paths": {
       "src/*": ["./src/*"]

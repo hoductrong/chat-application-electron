@@ -33,6 +33,7 @@ const ChatList = forwardRef<
     count: items.length,
     getScrollElement: () => containerRef.current,
     estimateSize: () => 80,
+    overscan: 10,
     getItemKey: useCallback((index: number) => items[index].id, [items]),
     rangeExtractor: useCallback((range: Range) => {
       rangeRef.current = range;
@@ -100,8 +101,7 @@ const ChatList = forwardRef<
               key={virtualRow.key}
               dataIndex={virtualRow.index}
               ref={virtualizer.measureElement}
-              header={items[virtualRow.index].senderName}
-              message={items[virtualRow.index].message}
+              item={items[virtualRow.index]}
               isRight={items[virtualRow.index].senderId === currentUserId}
             />
           ))}

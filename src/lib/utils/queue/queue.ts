@@ -1,8 +1,8 @@
-import PQueue from 'p-queue';
+import PQueue from './p-queue';
 
 export const createNewQueue = () => {
   const queue = new PQueue({
-    concurrency: 1,
+    concurrency: 1000,
   });
 
   return queue;

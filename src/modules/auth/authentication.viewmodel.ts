@@ -64,10 +64,16 @@ export class AuthenticationViewModel {
 
   autoAuthenticate = async (sessionId: string) => {
     if (!sessionId) {
-      return;
+      return {
+        error: AppError.UNAUTHORIZED,
+      };
     }
 
-    await this.authenticateModel.autoAuthenticate(sessionId);
+    const { error } = await this.authenticateModel.autoAuthenticate(sessionId);
+
+    return {
+      error,
+    };
   };
 
   startAuthenticate = async (

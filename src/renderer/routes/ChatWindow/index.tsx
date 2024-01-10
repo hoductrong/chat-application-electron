@@ -9,6 +9,7 @@ import { useConnectionStatus } from 'src/renderer/hooks/useConnectionStatus';
 import { useNavigate } from 'react-router-dom';
 import { useChatHandler } from 'src/modules/chat/chat.viewmodel';
 import { useAuthHandler } from 'src/modules/auth/authentication.viewmodel';
+import { AppError } from 'src/lib/types';
 // import { perfBankQrParser } from 'src/perf/perfBankQrParser';
 
 // const listMessages: Message[] = new Array(500).fill(0).map((_, index) => ({
@@ -32,6 +33,7 @@ const ChatWindow = observer(function () {
   } = useChatHandler();
   const authHandler = useAuthHandler();
   const isConnected = useConnectionStatus();
+  const [error, setError] = useState<AppError>(AppError.NO_ERROR);
   const ref = useRef<ChatListForwardedRef>(null);
 
   const navigate = useNavigate();
@@ -39,11 +41,20 @@ const ChatWindow = observer(function () {
   const isDisabled = !message || !currentConversation?.id || !isConnected;
 
   useEffect(() => {
-    if (!authHandler.sessionId) {
-      navigate('/login');
-    } else {
-      authHandler.autoAuthenticate(authHandler.sessionId);
-    }
+    const prefetch = async () => {
+      if (!authHandler.sessionId) {
+        navigate('/login');
+      } else {
+        const { error: authError } = await authHandler.autoAuthenticate(
+          authHandler.sessionId,
+        );
+        if (authError) {
+          setError(authError);
+        }
+      }
+    };
+
+    prefetch();
   }, [navigate, authHandler.sessionId, authHandler]);
 
   // useEffect(() => {
@@ -82,6 +93,10 @@ const ChatWindow = observer(function () {
   const onInputChange = (value: string) => {
     setMessage(value);
   };
+
+  if (error !== AppError.NO_ERROR) {
+    return <div>{error}</div>;
+  }
 
   return authHandler.currentUser !== null ? (
     <div className={styles.container}>

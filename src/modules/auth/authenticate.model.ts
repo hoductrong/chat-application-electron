@@ -52,12 +52,22 @@ export class AuthenticateModel {
     };
   }
 
-  async autoAuthenticate(sessionId: string) {
-    socketManager.setAuthenticateInfo({
-      sessionId,
-    });
+  async autoAuthenticate(sessionId: string): Promise<{ error: AppError }> {
+    try {
+      socketManager.setAuthenticateInfo({
+        sessionId,
+      });
 
-    await socketManager.connect();
+      await socketManager.connect();
+
+      return {
+        error: AppError.NO_ERROR,
+      };
+    } catch (error: any) {
+      return {
+        error: error?.code ?? AppError.DISCONNECTED,
+      };
+    }
   }
 
   getSessionId() {

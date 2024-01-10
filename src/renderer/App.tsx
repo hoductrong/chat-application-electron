@@ -2,8 +2,9 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import ChatWindow from './routes/ChatWindow';
 import AuthenticateWindow from './routes/AuthenticateWindow';
+import { observer } from 'mobx-react-lite';
 
-export default function App() {
+const App = observer(function () {
   return (
     <Router>
       <Routes>
@@ -12,4 +13,6 @@ export default function App() {
       </Routes>
     </Router>
   );
-}
+});
+
+export default App;

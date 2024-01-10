@@ -13,23 +13,32 @@ export function makeBankQrParserMain() {
     message: Message,
   ): Promise<BankQrWorkerResponse> => {
     try {
-      const result = await queue.add(async () => {
-        const parsedMessage = parseMessage(message);
-        if (!parsedMessage) {
-          return {
-            id,
-            data: undefined,
-            error: undefined,
-          };
-        }
-        const rawData = convertToQrData(parsedMessage);
-        const qrData = await genQrCodeFromRaw(rawData);
+      const result = await queue.add(async ({ signal }) => {
+        return new Promise<BankQrWorkerResponse>((resolve, reject) => {
+          signal?.addEventListener('abort', () => {
+            reject(new DOMException('Aborted', 'AbortError'));
+          });
 
-        return {
-          id,
-          data: qrData,
-          error: undefined,
-        };
+          const parsedMessage = parseMessage(message);
+          if (!parsedMessage) {
+            return {
+              id,
+              data: undefined,
+              error: undefined,
+            };
+          }
+          const rawData = convertToQrData(parsedMessage);
+          genQrCodeFromRaw(rawData).then((qrData) => {
+            resolve({
+              id,
+              data: {
+                bank: parsedMessage,
+                qrData,
+              },
+              error: undefined,
+            });
+          });
+        });
       });
 
       return result as BankQrWorkerResponse;

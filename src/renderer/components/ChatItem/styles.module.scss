@@ -1,17 +1,43 @@
+.justifyEnd {
+  justify-content: flex-end;
+}
+
+.alignEnd {
+  align-items: flex-end;
+}
+
+
 .container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 10px;
 
-  .card {
-    object-fit: contain;
-    width: 200px;
+  .cardContainer {
     height: 200px;
-  }
+    width: 300px;
+    padding: 12px;
+    border-radius: 6px;
+    background-color: #d7e29a;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
 
-  &.justifyEnd {
-    justify-content: flex-end;
+    .cardHeader {
+      align-self: flex-start;
+      text-transform: uppercase;
+    }
+
+    .card {
+      height: 100px;
+      width: 100px;
+      object-fit: contain;
+    }
+
+    &.hide {
+      display: none;
+    }
   }
 
   .contentWrapper {

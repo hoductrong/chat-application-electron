@@ -9,7 +9,7 @@ import { useConnectionStatus } from 'src/renderer/hooks/useConnectionStatus';
 import { useNavigate } from 'react-router-dom';
 import { useChatHandler } from 'src/modules/chat/chat.viewmodel';
 import { useAuthHandler } from 'src/modules/auth/authentication.viewmodel';
-import { perfBankQrParser } from 'src/perf/perfBankQrParser';
+// import { perfBankQrParser } from 'src/perf/perfBankQrParser';
 
 // const listMessages: Message[] = new Array(500).fill(0).map((_, index) => ({
 //   id: index,
@@ -28,6 +28,7 @@ const ChatWindow = observer(function () {
     currentConversation,
     joinDefaultConversation,
     setupReceivingMessage,
+    parseBankQr,
   } = useChatHandler();
   const authHandler = useAuthHandler();
   const isConnected = useConnectionStatus();
@@ -45,9 +46,9 @@ const ChatWindow = observer(function () {
     }
   }, [navigate, authHandler.sessionId, authHandler]);
 
-  useEffect(() => {
-    perfBankQrParser();
-  }, []);
+  // useEffect(() => {
+  //   perfBankQrParser();
+  // }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -88,6 +89,7 @@ const ChatWindow = observer(function () {
         <div className={styles.disconnected}>Disconnected. Reconnecting...</div>
       )}
       <ChatList
+        parseQrCode={parseBankQr}
         ref={ref}
         currentUserId={authHandler.currentUser.id}
         items={listMessages}

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import styles from './styles.module.scss';
-import { forwardRef, useEffect, useRef, useState } from 'react';
+import { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import type { Message } from 'src/lib/types';
 
 type ChatItemProps = {
@@ -8,25 +8,40 @@ type ChatItemProps = {
   isRight?: boolean;
   dataIndex?: number;
   item: Message;
+  parseQrCode: (
+    message: Message,
+    options?: {
+      signal: AbortSignal;
+    },
+  ) => Promise<void>;
 };
 
 const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>(
-  ({ className, isRight, dataIndex, item }, ref) => {
+  ({ className, isRight, dataIndex, item, parseQrCode }, ref) => {
     const { senderName: header, message } = item;
-    const [isHasQrCode, setIsHasQrCode] = useState<boolean>(false);
+    const [, setIsHasQrCode] = useState<boolean>(false);
     const cardRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
+      const abortController = new AbortController();
       const parseItem = async () => {
-        if (!item.bankQrCode) return;
+        const signal = abortController.signal;
+        await parseQrCode(item, {
+          signal,
+        });
+        if (!item.bankInfo) return;
 
         if (cardRef.current) {
-          cardRef.current.appendChild(item.bankQrCode);
+          cardRef.current.appendChild(item.bankInfo.svg);
           setIsHasQrCode(true);
         }
       };
       parseItem();
-    }, [item]);
+
+      return () => {
+        abortController.abort();
+      };
+    }, [item, parseQrCode]);
 
     return (
       <div
@@ -35,10 +50,15 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>(
         className={classNames(
           styles.container,
           className,
-          isRight && styles.justifyEnd,
+          isRight && styles.alignEnd,
         )}
       >
-        <div className={styles.contentWrapper}>
+        <div
+          className={classNames(
+            styles.contentWrapper,
+            isRight && styles.justifyEnd,
+          )}
+        >
           {isRight && <div className={styles.dummy} />}
           <div className={classNames(styles.content, isRight && styles.bgBlue)}>
             <div className={styles.header}>
@@ -48,7 +68,20 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>(
           </div>
           {!isRight && <div className={styles.dummy} />}
         </div>
-        <div ref={cardRef} className={styles.card}></div>
+        <div
+          className={classNames(
+            styles.cardContainer,
+            !item?.bankInfo?.svg && styles.hide,
+            isRight && styles.justifyEnd,
+          )}
+        >
+          {item.bankInfo && (
+            <div className={styles.cardHeader}>
+              {item.bankInfo.bank.bankName}
+            </div>
+          )}
+          <div ref={cardRef} className={styles.card}></div>
+        </div>
       </div>
     );
   },
@@ -56,4 +89,4 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>(
 
 ChatItem.displayName = 'ChatItem';
 
-export default ChatItem;
+export default memo(ChatItem);

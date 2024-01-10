@@ -1,4 +1,3 @@
-import { markEnd, markStart, measure } from '../performance';
 import type { Message } from '../types';
 import { createNewQueue } from '../utils/queue/queue';
 import type { BankQrWorkerRequest, BankQrWorkerResponse } from './constants';
@@ -33,37 +32,39 @@ export function makeBankQrParserWorker() {
     };
 
     try {
-      // const queue = await workerQueue.add(
-      //   async ({ signal }) => {
-      //     return new Promise<BankQrWorkerResponse>((resolve, reject) => {
-      //       signal?.addEventListener('abort', () => {
-      //         reject(new DOMException('Aborted', 'AbortError'));
-      //       });
+      const queue = await workerQueue.add(
+        async ({ signal }) => {
+          return new Promise<BankQrWorkerResponse>((resolve, reject) => {
+            signal?.addEventListener('abort', () => {
+              console.log('Abort');
+              reject(new DOMException('Aborted', 'AbortError'));
+            });
 
-      //       responseMap.set(id, (response) => {
-      //         responseMap.delete(id);
-      //         resolve(response);
-      //       });
-      //       worker.postMessage(request);
-      //     });
-      //   },
-      //   { signal: options?.signal },
-      // );
+            responseMap.set(id, (response) => {
+              responseMap.delete(id);
+              resolve(response);
+            });
+            worker.postMessage(request);
+          });
+        },
+        { signal: options?.signal, id },
+      );
 
-      // return queue as BankQrWorkerResponse;
-      return new Promise<BankQrWorkerResponse>((resolve) => {
-        markStart(`bankqrWorker-${id}`);
-        responseMap.set(id, (response) => {
-          responseMap.delete(id);
-          resolve(response);
-          markEnd(`bankqrWorker-${id}`);
-          // measure(`bankqrWorker-${id}`);
-        });
-        worker.postMessage(request);
-      });
+      return queue as BankQrWorkerResponse;
+      // return new Promise<BankQrWorkerResponse>((resolve) => {
+      //   markStart(`bankqrWorker-${id}`);
+      //   responseMap.set(id, (response) => {
+      //     responseMap.delete(id);
+      //     resolve(response);
+      //     markEnd(`bankqrWorker-${id}`);
+      //     // measure(`bankqrWorker-${id}`);
+      //   });
+      //   worker.postMessage(request);
+      // });
     } catch (error: unknown) {
       return {
         id,
+        data: undefined,
         error: (error as Error).message,
       };
     }

@@ -1,11 +1,20 @@
 import { logger } from '../logger';
-import type { BankQrWorkerResponse, BankQrWorkerRequest } from './constants';
+import type {
+  BankQrWorkerResponse,
+  BankQrWorkerRequest,
+  BankAccount,
+} from './constants';
 import { genQrCodeFromRaw } from './gen-qr';
 import { convertToQrData, parseMessage } from './message-parser';
 
 function respond(
   id: number,
-  data: string | undefined,
+  data:
+    | {
+        qrData: string;
+        bank: BankAccount;
+      }
+    | undefined,
   error: Error | undefined,
 ) {
   const res: BankQrWorkerResponse = {
@@ -19,6 +28,7 @@ function respond(
 onmessage = async (event: MessageEvent<BankQrWorkerRequest>) => {
   const { data } = event || {};
   try {
+    console.log('Start parsing', data.id);
     const parsedMessage = parseMessage(data.message);
     if (!parsedMessage) {
       respond(data.id, undefined, undefined);
@@ -26,7 +36,14 @@ onmessage = async (event: MessageEvent<BankQrWorkerRequest>) => {
     }
     const rawData = convertToQrData(parsedMessage);
     const qrData = await genQrCodeFromRaw(rawData);
-    respond(data.id, qrData, undefined);
+    respond(
+      data.id,
+      {
+        qrData,
+        bank: parsedMessage,
+      },
+      undefined,
+    );
   } catch (error: any) {
     logger.log('bankqrWorker: error', error);
     respond(data?.id, undefined, error);

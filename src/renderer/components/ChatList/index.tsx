@@ -17,6 +17,12 @@ type ChatListProps = {
   className?: string;
   items: Array<Message>;
   currentUserId: string | undefined;
+  parseQrCode: (
+    message: Message,
+    options?: {
+      signal: AbortSignal;
+    },
+  ) => Promise<void>;
 };
 
 export type ChatListForwardedRef = {
@@ -26,14 +32,13 @@ export type ChatListForwardedRef = {
 const ChatList = forwardRef<
   ChatListForwardedRef,
   PropsWithChildren<ChatListProps>
->(({ className, items, currentUserId }, ref) => {
+>(({ className, items, currentUserId, parseQrCode }, ref) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rangeRef = useRef<Range | null>(null);
   const virtualizer = useVirtualizer({
     count: items.length,
     getScrollElement: () => containerRef.current,
-    estimateSize: () => 80,
-    overscan: 10,
+    estimateSize: () => 300,
     getItemKey: useCallback((index: number) => items[index].id, [items]),
     rangeExtractor: useCallback((range: Range) => {
       rangeRef.current = range;
@@ -99,6 +104,7 @@ const ChatList = forwardRef<
           {_items.map((virtualRow) => (
             <ChatItem
               key={virtualRow.key}
+              parseQrCode={parseQrCode}
               dataIndex={virtualRow.index}
               ref={virtualizer.measureElement}
               item={items[virtualRow.index]}

@@ -2,7 +2,10 @@ import type { Message } from '../types';
 
 export type BankQrWorkerResponse = {
   id: number;
-  data?: string;
+  data?: {
+    qrData: string;
+    bank: BankAccount;
+  };
   error?: string;
 };
 
@@ -15,6 +18,8 @@ export type BankAccountMessage = {
   bankNumber: string;
   bankName: BankKey;
 };
+
+export type BankAccount = BankAccountMessage;
 
 export class AdditionalData {
   billNumber?: string;
@@ -736,6 +741,7 @@ export const banksObject: Record<BankKey, Bank> = {
     vietQRStatus: VietQRStatus.TRANSFER_SUPPORTED,
     lookupSupported: 1,
     swiftCode: 'VTCBVNVX',
+    keywords: 'techcom, kythuong',
     prefixNumber: ['102', '196', '140', '191', '190'],
   },
   [BankKey.TIMO]: {

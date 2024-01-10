@@ -1,4 +1,5 @@
 import type { Socket as SocketIO } from 'socket.io-client';
+import type { BankAccountMessage, BankKey } from './bankqr/constants';
 
 export type SuccessResponse<T> = {
   success: true;
@@ -35,7 +36,10 @@ export type Message = {
   conversationId: string;
   createdAt: number;
   senderId: string;
-  bankQrCode?: HTMLElement;
+  bankInfo?: {
+    svg: HTMLElement;
+    bank: BankAccountMessage;
+  };
 };
 
 export type MessageWithoutId = Omit<Message, 'id'>;

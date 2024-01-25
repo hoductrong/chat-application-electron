@@ -3,7 +3,7 @@ import type { Message } from '../types';
 export type BankQrWorkerResponse = {
   id: number;
   data?: {
-    qrData: string;
+    qrData: Uint8Array;
     bank: BankAccount;
   };
   error?: string;
@@ -328,7 +328,7 @@ export const banksObject: Record<BankKey, Bank> = {
   [BankKey.BIDV]: {
     key: BankKey.BIDV,
     code: BankCode.BIDV,
-    name: 'Ngân hàng TMCP Đầu tư và Phát triển Việt Nam',
+    name: 'Ngân hàng BIDV',
     bin: '970418',
     shortName: 'BIDV',
     vietQRStatus: VietQRStatus.TRANSFER_SUPPORTED,
@@ -735,7 +735,7 @@ export const banksObject: Record<BankKey, Bank> = {
   [BankKey.TECHCOMBANK]: {
     key: BankKey.TECHCOMBANK,
     code: BankCode.TECHCOMBANK,
-    name: 'Ngân hàng TMCP Kỹ thương Việt Nam',
+    name: 'Ngân hàng Techcombank',
     bin: '970407',
     shortName: 'Techcombank',
     vietQRStatus: VietQRStatus.TRANSFER_SUPPORTED,
@@ -873,7 +873,7 @@ export const banksObject: Record<BankKey, Bank> = {
   [BankKey.VPBANK]: {
     key: BankKey.VPBANK,
     code: BankCode.VPBANK,
-    name: 'Ngân hàng TMCP Việt Nam Thịnh Vượng',
+    name: 'Ngân hàng VPBank',
     bin: '970432',
     shortName: 'VPBank',
     vietQRStatus: VietQRStatus.TRANSFER_SUPPORTED,

@@ -1,5 +1,7 @@
-import { doBasicDemo } from './gen';
+import type { GenQrCodeFunc } from 'src/lib/types';
+import { genQrImage } from './gen';
 
-export const makeGenQrCode = async () => {
-  return (data: string): Promise<string> => doBasicDemo(data);
+export const makeGenQrCode = async (): Promise<GenQrCodeFunc> => {
+  return (data: string, scale: number, border: number): Promise<Uint8Array> =>
+    genQrImage(data, scale, border);
 };

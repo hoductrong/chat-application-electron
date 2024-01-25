@@ -1,5 +1,11 @@
 import type { Socket as SocketIO } from 'socket.io-client';
-import type { BankAccountMessage, BankKey } from './bankqr/constants';
+import type { BankAccountMessage } from './bankqr/constants';
+
+export type GenQrCodeFunc = (
+  data: string,
+  scale: number,
+  border: number,
+) => Promise<Uint8Array>;
 
 export type SuccessResponse<T> = {
   success: true;
@@ -37,7 +43,7 @@ export type Message = {
   createdAt: number;
   senderId: string;
   bankInfo?: {
-    svg: HTMLElement;
+    qrData: Blob;
     bank: BankAccountMessage;
   };
 };

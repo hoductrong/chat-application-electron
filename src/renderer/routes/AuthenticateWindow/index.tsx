@@ -10,7 +10,7 @@ import { useChatHandler } from 'src/modules/chat/chat.viewmodel';
 import { useAuthHandler } from 'src/modules/auth/authentication.viewmodel';
 import useLoading from 'src/renderer/hooks/useLoading';
 
-const AuthenticateWindow: FC = () => {
+const AuthenticateWindow: FC = observer(() => {
   const [username, setUsername] = useState<string>('');
   const { startAuthenticate, error } = useAuthHandler();
   const { joinDefaultConversation, setupReceivingMessage } = useChatHandler();
@@ -56,6 +56,6 @@ const AuthenticateWindow: FC = () => {
       </form>
     </div>
   );
-};
+});
 
-export default observer(AuthenticateWindow);
+export default AuthenticateWindow;

@@ -52,12 +52,18 @@ export class SocketManager extends EventTarget {
     return new Promise<void>((resolve, reject) => {
       try {
         if (this.isConnected) {
+          resolve();
           return;
         }
+
+        const id = setTimeout(() => {
+          reject(AppError.CONNECT_TIMEOUT);
+        }, TIMEOUT);
 
         this.onSession((data) => {
           setSessionId(data.sessionId);
           resolve();
+          clearTimeout(id);
         });
 
         this.isConnecting = true;
@@ -65,10 +71,6 @@ export class SocketManager extends EventTarget {
         this.retryWhenError();
         this.isConnecting = false;
         this.isConnected = true;
-
-        setTimeout(() => {
-          reject(AppError.CONNECT_TIMEOUT);
-        }, TIMEOUT);
       } catch (error) {
         reject(error);
       }
@@ -85,6 +87,25 @@ export class SocketManager extends EventTarget {
         await this.connect();
       }
     });
+    this.onReconnectError(async (error) => {
+      console.log('🚀 ~ SocketManager ~ this.onReconnectError ~ error:', error);
+      logger.info('Socket is reconnected error');
+      logger.info('Reconnecting...');
+      this.isConnected = false;
+      setTimeout(() => {
+        this.connect();
+      }, TIMEOUT);
+    });
+
+    this.onConnectError(async (error) => {
+      console.log('🚀 ~ SocketManager ~ this.onConnectError ~ error:', error);
+      logger.info('Socket is connected error');
+      logger.info('Reconnecting...');
+      this.isConnected = false;
+      setTimeout(() => {
+        this.connect();
+      }, TIMEOUT);
+    });
   }
 
   onDisconnect(callback: (reason: SocketIO.DisconnectReason) => void) {
@@ -97,6 +118,22 @@ export class SocketManager extends EventTarget {
 
   onReconnect(callback: () => void) {
     this.#socket.io.on('reconnect', callback);
+  }
+
+  onReconnectError(callback: (error: Error) => void) {
+    this.#socket.io.on('reconnect_error', callback);
+  }
+
+  offReconnectError(callback: (error: Error) => void) {
+    this.#socket.io.off('reconnect_error', callback);
+  }
+
+  onConnectError(callback: (error: Error) => void) {
+    this.#socket.on('connect_error', callback);
+  }
+
+  offConnectError(callback: (error: Error) => void) {
+    this.#socket.off('connect_error', callback);
   }
 
   offReconnect(callback: () => void) {
@@ -193,7 +230,7 @@ export class SocketManager extends EventTarget {
         ack({ success: true });
         if (data.success) {
           onSuccess(data.data);
-          logger.info('Receive message from server: ', data);
+          // logger.info('Receive message from server: ', data);
         } else {
           onFailed?.(new SocketError(data));
           logger.error('Receive message failed, received data: ', data);
@@ -222,7 +259,7 @@ export class SocketManager extends EventTarget {
       ) => {
         if (data.success) {
           onSuccess(data.data);
-          logger.info('Receive session from server: ', data);
+          // logger.info('Receive session from server: ', data);
         } else {
           onFailed?.(new SocketError(data));
           logger.error('Receive session failed, received data: ', data);

@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Button from '../../components/Button';
 import styles from './styles.module.scss';
-import Input from '../../components/Input';
 import type { ChatListForwardedRef } from '../../components/ChatList';
 import ChatList from '../../components/ChatList';
 import { observer } from 'mobx-react-lite';
@@ -10,19 +8,11 @@ import { useNavigate } from 'react-router-dom';
 import { useChatHandler } from 'src/modules/chat/chat.viewmodel';
 import { useAuthHandler } from 'src/modules/auth/authentication.viewmodel';
 import { AppError } from 'src/lib/types';
-// import { perfBankQrParser } from 'src/perf/perfBankQrParser';
+import { formatErrorMessage } from 'src/renderer/utils';
+import ChatInput from 'src/renderer/components/ChatInput';
+import { normalSamples } from 'src/perf/samples';
 
-// const listMessages: Message[] = new Array(500).fill(0).map((_, index) => ({
-//   id: index,
-//   senderId: index % 10 === 1 ? '7694cf23-b50b-4c2f-a038-1ce97f277a2c' : '1',
-//   senderName: 'John Doe',
-//   message: new Array(index % 10).fill('Hello world').join(''),
-//   conversationId: '1',
-//   createdAt: Date.now(),
-// }));
-
-const ChatWindow = observer(function () {
-  const [message, setMessage] = useState<string>('');
+const ChatWindow = observer(() => {
   const {
     listMessages,
     sendMessage,
@@ -31,41 +21,41 @@ const ChatWindow = observer(function () {
     setupReceivingMessage,
     parseBankQr,
   } = useChatHandler();
+
   const authHandler = useAuthHandler();
   const isConnected = useConnectionStatus();
   const [error, setError] = useState<AppError>(AppError.NO_ERROR);
+  const [loading, setLoading] = useState(false);
   const ref = useRef<ChatListForwardedRef>(null);
 
   const navigate = useNavigate();
 
-  const isDisabled = !message || !currentConversation?.id || !isConnected;
+  const isDisabled = loading || !currentConversation?.id || !isConnected;
 
   useEffect(() => {
     const prefetch = async () => {
       if (!authHandler.sessionId) {
         navigate('/login');
       } else {
+        setLoading(true);
         const { error: authError } = await authHandler.autoAuthenticate(
           authHandler.sessionId,
         );
         if (authError) {
           setError(authError);
         }
+        setLoading(false);
       }
     };
 
     prefetch();
-  }, [navigate, authHandler.sessionId, authHandler]);
-
-  // useEffect(() => {
-  //   perfBankQrParser();
-  // }, []);
+  }, [authHandler.sessionId]);
 
   useEffect(() => {
     const init = async () => {
       if (authHandler.sessionId) {
         await joinDefaultConversation();
-        if (!currentConversation) return;
+        if (!currentConversation?.id) return;
         setupReceivingMessage(currentConversation.id);
       }
     };
@@ -74,12 +64,7 @@ const ChatWindow = observer(function () {
     return () => {
       remove();
     };
-  }, [
-    authHandler,
-    currentConversation,
-    joinDefaultConversation,
-    setupReceivingMessage,
-  ]);
+  }, [authHandler.sessionId, currentConversation?.id]);
 
   const scrollToLastMessage = () => {
     if (!ref.current) return;
@@ -90,51 +75,34 @@ const ChatWindow = observer(function () {
     scrollToLastMessage();
   }, []);
 
-  const onInputChange = (value: string) => {
-    setMessage(value);
-  };
-
   if (error !== AppError.NO_ERROR) {
-    return <div>{error}</div>;
+    return <div>{formatErrorMessage(error)}</div>;
   }
 
   return authHandler.currentUser !== null ? (
     <div className={styles.container}>
-      {!isConnected && (
+      {!loading && !isConnected && (
         <div className={styles.disconnected}>Disconnected. Reconnecting...</div>
       )}
       <ChatList
         parseQrCode={parseBankQr}
         ref={ref}
         currentUserId={authHandler.currentUser.id}
-        items={listMessages}
+        items={normalSamples}
         className={styles.chatList}
       />
-      <form className={styles.chatInputContainer}>
-        <Input
-          value={message}
-          className={styles.input}
-          onChange={onInputChange}
-          placeholder="Type your message here..."
-        />
-        <Button
-          type="submit"
-          isDisabled={isDisabled}
-          className={styles.button}
-          onClick={async () => {
-            if (!message || !currentConversation?.id) return;
+      <ChatInput
+        isDisabled={isDisabled}
+        onSubmit={async (message) => {
+          if (!message || !currentConversation?.id) return;
 
-            await sendMessage({
-              message,
-              to: currentConversation.id,
-            });
-            setMessage('');
-            scrollToLastMessage();
-          }}
-        >
-          Send
-        </Button>
-      </form>
+          await sendMessage({
+            message,
+            to: currentConversation.id,
+          });
+          scrollToLastMessage();
+        }}
+      />
     </div>
   ) : (
     <></>

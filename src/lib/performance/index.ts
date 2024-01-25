@@ -1,3 +1,5 @@
+import { logger } from '../logger';
+
 export function markStart(name: string) {
   performance.mark(`${name}-start`);
 }
@@ -7,8 +9,8 @@ export function markEnd(name: string) {
 }
 
 type MeasureOptions = {
-  start: string;
-  end: string;
+  start?: string;
+  end?: string;
   logLevel?: 'log' | 'warn' | 'error' | 'off';
 };
 export function measure(name: string, options?: MeasureOptions) {
@@ -19,7 +21,7 @@ export function measure(name: string, options?: MeasureOptions) {
   const result = performance.measure(`${name}-duration`, startName, endName);
   if (logLevel !== 'off') {
     // eslint-disable-next-line no-console
-    console[logLevel ?? 'log'](`${name}-duration`, result);
+    logger[logLevel ?? 'info'](`${name}-duration`, result);
   }
 
   return result;

@@ -55,6 +55,14 @@ const rendererConfig: Configuration = {
   module: {
     rules: [
       {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+          },
+        ],
+      },
+      {
         test: /\.tsx?$/,
         exclude: /(node_modules|\.webpack)/,
         use: {

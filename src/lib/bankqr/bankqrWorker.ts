@@ -1,17 +1,19 @@
 import { logger } from '../logger';
+import { markEnd, markStart, measure } from '../performance';
 import type {
   BankQrWorkerResponse,
   BankQrWorkerRequest,
   BankAccount,
 } from './constants';
-import { genQrCodeFromRaw } from './gen-qr';
+import { makeGenQrFromRaw } from './gen-qr';
 import { convertToQrData, parseMessage } from './message-parser';
 
+const genQrCodeFromRawWasm = makeGenQrFromRaw('wasm');
 function respond(
   id: number,
   data:
     | {
-        qrData: string;
+        qrData: Uint8Array;
         bank: BankAccount;
       }
     | undefined,
@@ -22,20 +24,27 @@ function respond(
     data,
     error: error?.stack ?? error?.message,
   };
+
   postMessage(res);
 }
 
 onmessage = async (event: MessageEvent<BankQrWorkerRequest>) => {
   const { data } = event || {};
   try {
-    console.log('Start parsing', data.id);
     const parsedMessage = parseMessage(data.message);
     if (!parsedMessage) {
       respond(data.id, undefined, undefined);
       return;
     }
     const rawData = convertToQrData(parsedMessage);
-    const qrData = await genQrCodeFromRaw(rawData);
+
+    markStart(`genQrCodeFromRawWasm-${data.id}`);
+    const qrData = await genQrCodeFromRawWasm(rawData);
+    markEnd(`genQrCodeFromRawWasm-${data.id}`);
+    measure(`genQrCodeFromRawWasm-${data.id}`, {
+      logLevel: 'off',
+    });
+
     respond(
       data.id,
       {

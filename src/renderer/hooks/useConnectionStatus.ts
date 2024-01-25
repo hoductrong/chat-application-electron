@@ -3,6 +3,7 @@ import { socketManager } from 'src/lib/socket/SocketManager';
 
 export const useConnectionStatus = (): boolean => {
   const [isConnected, setIsConnected] = useState(socketManager.isConnected);
+  console.log('🚀 ~ useConnectionStatus ~ isConnected:', isConnected);
 
   useEffect(() => {
     const onConnect = () => {

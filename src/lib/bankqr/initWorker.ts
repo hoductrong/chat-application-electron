@@ -36,7 +36,6 @@ export function makeBankQrParserWorker() {
         async ({ signal }) => {
           return new Promise<BankQrWorkerResponse>((resolve, reject) => {
             signal?.addEventListener('abort', () => {
-              console.log('Abort');
               reject(new DOMException('Aborted', 'AbortError'));
             });
 
@@ -51,16 +50,6 @@ export function makeBankQrParserWorker() {
       );
 
       return queue as BankQrWorkerResponse;
-      // return new Promise<BankQrWorkerResponse>((resolve) => {
-      //   markStart(`bankqrWorker-${id}`);
-      //   responseMap.set(id, (response) => {
-      //     responseMap.delete(id);
-      //     resolve(response);
-      //     markEnd(`bankqrWorker-${id}`);
-      //     // measure(`bankqrWorker-${id}`);
-      //   });
-      //   worker.postMessage(request);
-      // });
     } catch (error: unknown) {
       return {
         id,

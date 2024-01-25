@@ -14,25 +14,43 @@
   margin-bottom: 10px;
 
   .cardContainer {
-    height: 200px;
-    width: 300px;
+    height: 172px;
+    width: 270px;
     padding: 12px;
     border-radius: 6px;
-    background-color: #d7e29a;
+    background-color: brown;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     justify-content: space-between;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
 
     .cardHeader {
       align-self: flex-start;
-      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
     }
 
     .card {
       height: 100px;
       width: 100px;
       object-fit: contain;
+    }
+
+    .bottomContainer {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: inherit;
+      width: 100%;
+
+      .cardFooterText {
+        display: flex;
+        flex-direction: column;
+        color: white;
+        gap: 2px;
+      }
     }
 
     &.hide {
@@ -49,18 +67,18 @@
       flex-direction: column;
       justify-content: center;
       background-color: white;
-      border: 1px solid #d1d1d1;
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: rgba(0, 0, 0, 0.12) 0px 0px 2px, rgba(0, 0, 0, 0.14) 0px 2px 4px;
+      border-radius: 18px;
+      padding: 8px 12px;
   
       &.bgBlue {
-        background-color: #9299f7;
+        background-color: rgb(44, 98, 239);
+        color: white;
       }
 
       .name {
         font-weight: bold;
         margin-bottom: 5px;
+        font-size: 13px;
       }
   
       .message {

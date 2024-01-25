@@ -3,17 +3,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: end;
-  max-width: 1000px;
-  margin: 30px auto;
+  background-color: #ebebeb;
+  width: 100%;
   position: relative;
-  padding: 0 12px;
-  border: 1px solid #d1d1d1;
-  border-radius: 4px;
+  padding: 0 16px;
+  border-radius: 8px;
 
   .disconnected {
     position: absolute;
     top: 0;
     left: 0;
+    right: 0;
 
     display: flex;
     flex-direction: column;
@@ -29,23 +29,5 @@
 
   .chatList {
     padding: 10px;
-  }
-
-  .chatInputContainer {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #d1d1d1;
-    border-radius: 4px;
-
-    .input {
-      flex: 1;
-      margin-right: 10px;
-    }
-
-    .button {
-      flex: 0;
-    }
   }
 }

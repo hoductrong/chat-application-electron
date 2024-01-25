@@ -1,0 +1,16 @@
+.chatInputContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 4px;
+
+  .input {
+    flex: 1;
+    margin-right: 10px;
+  }
+
+  .button {
+    flex: 0;
+  }
+}
